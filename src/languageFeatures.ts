@@ -190,13 +190,15 @@ function toTextEdit(textEdit: ls.TextEdit): monaco.editor.ISingleEditOperation {
 	}
 }
 
+const emmetTriggerCharacters = ['!', '.', '}', ':', '*', '$', ']', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
 export class CompletionAdapter implements monaco.languages.CompletionItemProvider {
 
 	constructor(private _worker: WorkerAccessor) {
 	}
 
 	public get triggerCharacters(): string[] {
-		return [' ', ':'];
+		return [...emmetTriggerCharacters, ' ', ':'];
 	}
 
 	provideCompletionItems(model: monaco.editor.IReadOnlyModel, position: Position, token: CancellationToken): Thenable<monaco.languages.CompletionList> {

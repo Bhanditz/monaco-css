@@ -3,9 +3,10 @@
   "version": "2.2.0",
   "description": "CSS, LESS and SCSS plugin for the Monaco Editor",
   "scripts": {
-    "compile": "mrmdir ./out && tsc -p ./src/tsconfig.json && tsc -p ./src/tsconfig.esm.json",
-    "watch": "tsc -p ./src --watch",
-    "prepublish": "mrmdir ./release && npm run compile && node ./scripts/release.js && node ./scripts/bundle && mcopy ./src/monaco.d.ts ./release/monaco.d.ts",
+    "compile": "mrmdir ./out && yarn copy:emmet && tsc -p ./src/tsconfig.json && tsc -p ./src/tsconfig.esm.json",
+    "watch": "yarn copy:emmet && tsc -p ./src --watch",
+    "copy:emmet": "mcopy ./src/emmet/expand/expand-full.js ./out/amd/emmet/expand/expand-full.js && mcopy ./src/emmet/expand/extract-abbreviation.js ./out/amd/emmet/expand/extract-abbreviation.js",
+    "prepublish": "yarn copy:emmet && mrmdir ./release && npm run compile && node ./scripts/release.js && node ./scripts/bundle && mcopy ./src/monaco.d.ts ./release/monaco.d.ts",
     "install-service-next": "npm install vscode-css-languageservice@next -f -D && npm install vscode-languageserver-types@next -f -D",
     "install-service-local": "npm install ../vscode-css-languageservice -f -D && npm install ../vscode-languageserver-node/types -f -D"
   },

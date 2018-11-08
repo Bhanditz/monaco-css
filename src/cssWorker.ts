@@ -10,6 +10,13 @@ import IWorkerContext = monaco.worker.IWorkerContext;
 
 import * as cssService from 'vscode-css-languageservice';
 import * as ls from 'vscode-languageserver-types';
+import * as emmet from './emmet/emmetHelper';
+
+export enum Priority {
+	Emmet,
+	Platform
+}
+
 
 export class CSSWorker {
 
@@ -54,8 +61,33 @@ export class CSSWorker {
 	doComplete(uri: string, position: ls.Position): Thenable<ls.CompletionList> {
 		let document = this._getTextDocument(uri);
 		let stylesheet = this._languageService.parseStylesheet(document);
-		let completions = this._languageService.doComplete(document, position, stylesheet);
-		return Promise.as(completions);
+    let lsCompletions = this._languageService.doComplete(document, position, stylesheet);
+    const lsItems = lsCompletions ? lsCompletions.items.map(i => {
+      return {
+        ...i,
+        sortText: Priority.Platform + i.label
+      };
+      }) : [];
+
+
+    const emmetCompletions = emmet.doComplete(document, position, this._languageId, {
+      showExpandedAbbreviation: 'always',
+      showAbbreviationSuggestions: true,
+      syntaxProfiles: {},
+      variables: {},
+      preferences: {}
+    });
+    const emmetItems = emmetCompletions ? emmetCompletions.items.map(i => {
+      return {
+        ...i,
+        sortText: Priority.Emmet + i.label
+      };
+    }) : [];
+
+    return Promise.as({
+      isIncomplete: true,
+      items: emmetItems.concat(lsItems)
+    });
 	}
 	doHover(uri: string, position: ls.Position): Thenable<ls.Hover> {
 		let document = this._getTextDocument(uri);
